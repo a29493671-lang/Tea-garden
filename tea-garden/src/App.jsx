@@ -1,34 +1,30 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  Coffee,
-  CupSoda,
-  Sandwich,
-  Sparkles,
   Search,
   ShoppingBag,
   Plus,
   Minus,
   X,
   QrCode,
-  Printer,
-  ChevronRight,
-  Star,
-  Leaf,
-  Heart,
-  ArrowUp,
-  Info,
+  Download,
+  Share2,
+  Coffee,
+  IceCreamBowl,
+  UtensilsCrossed,
+  ChevronDown,
+  Sparkles,
 } from "lucide-react";
 
 /* =========================================================
-   MENU DATA — PRESERVED FROM YOUR ORIGINAL CODE
-========================================================= */
+   TEA GARDEN MENU DATA
+   ========================================================= */
 
 const MENU_DATA = {
   hotBeverages: [
     {
       category: "Tea Flavours",
       items: [
-        { name: "Amruttulya Tea", price: 10 },
+        { name: "Amruttulya Tea", price: 20 },
         { name: "Vanila Tea", price: 20 },
         { name: "Butterscotch Tea", price: 20 },
         { name: "Rose Tea", price: 20 },
@@ -131,6 +127,7 @@ const MENU_DATA = {
         },
       ],
     },
+
     {
       category: "Grilled Sandwich",
       items: [
@@ -175,819 +172,859 @@ const MENU_DATA = {
 };
 
 /* =========================================================
-   HELPERS
-========================================================= */
+   CHANGE ONLY THIS NUMBER
+   =========================================================
+   Example:
+   Indian number 9876543210
+   => 919876543210
 
-const allSections = [
-  ...MENU_DATA.hotBeverages,
-  ...MENU_DATA.coldBeverages,
-  ...MENU_DATA.food,
-];
+   DO NOT use:
+   +91 9876543210
+   91-9876543210
+   ========================================================= */
 
-const popularItems = [
-  "Badam Kesar Milk",
-  "Hazelnut Cold Coffee",
-  "Oreo Shake",
-  "Veg Cheesy Burger",
-  "Tandoori Paneer Tikka Cheese Sandwich",
-];
-
-const categoryInfo = {
-  "Tea Flavours": {
-    icon: "🍵",
-    subtitle: "Classic & refreshing",
-  },
-  "Water Base Tea Flavours": {
-    icon: "🍋",
-    subtitle: "Light & refreshing",
-  },
-  "Hot Coffee Flavours": {
-    icon: "☕",
-    subtitle: "Rich & aromatic",
-  },
-  "Cold Coffee Flavours": {
-    icon: "🧊",
-    subtitle: "Chilled & creamy",
-  },
-  "Milk Shakes": {
-    icon: "🥤",
-    subtitle: "Thick & delicious",
-  },
-  Juice: {
-    icon: "🍹",
-    subtitle: "Fresh & refreshing",
-  },
-  Lassi: {
-    icon: "🥛",
-    subtitle: "Cool & creamy",
-  },
-  Burger: {
-    icon: "🍔",
-    subtitle: "Loaded & cheesy",
-  },
-  "Grilled Sandwich": {
-    icon: "🥪",
-    subtitle: "Crispy & cheesy",
-  },
-};
-
-function getItemIcon(name) {
-  const n = name.toLowerCase();
-
-  if (n.includes("tea") || n.includes("milk")) return "🍵";
-  if (n.includes("coffee")) return "☕";
-  if (n.includes("shake")) return "🥤";
-  if (n.includes("lassi")) return "🥛";
-  if (n.includes("mojito") || n.includes("soda")) return "🍹";
-  if (n.includes("burger")) return "🍔";
-  if (n.includes("sandwich")) return "🥪";
-
-  return "✨";
-}
+const WHATSAPP_NUMBER = "6362904490";
 
 /* =========================================================
    MAIN APP
-========================================================= */
+   ========================================================= */
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [search, setSearch] = useState("");
-  const [cart, setCart] = useState({});
-  const [showCart, setShowCart] = useState(false);
-  const [showOwnerPanel, setShowOwnerPanel] = useState(false);
+  const [activeSection, setActiveSection] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cart, setCart] = useState([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [ownerOpen, setOwnerOpen] = useState(false);
+
+  // Use the shortest stable production URL for the QR.
   const [websiteUrl, setWebsiteUrl] = useState(
-    "https://tea-garden-afovxyhdn-a29493671-lang.vercel.app/"
+    "https://tea-garden-tan.vercel.app/"
   );
-  const [showTopButton, setShowTopButton] = useState(false);
 
-  /* -----------------------------------------
-     Scroll button
-  ----------------------------------------- */
+  /* =======================================================
+     ALL MENU ITEMS
+     ======================================================= */
 
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setShowTopButton(window.scrollY > 500);
-    };
+  const allSections = useMemo(() => {
+    const sections = [];
 
-    window.addEventListener("scroll", handleScroll);
+    Object.entries(MENU_DATA).forEach(([key, groups]) => {
+      groups.forEach((group) => {
+        sections.push({
+          section: key,
+          category: group.category,
+          items: group.items,
+        });
+      });
+    });
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return sections;
   }, []);
 
-  /* -----------------------------------------
-     Cart
-  ----------------------------------------- */
+  /* =======================================================
+     POPULAR ITEMS
+     ======================================================= */
 
-  const addToCart = (item) => {
-    setCart((prev) => ({
-      ...prev,
-      [item.name]: {
-        ...item,
-        quantity: (prev[item.name]?.quantity || 0) + 1,
-      },
-    }));
+  const popularItems = useMemo(() => {
+    return [
+      { name: "Amruttulya Tea", price: 20 },
+      { name: "Vanila Tea", price: 20 },
+      { name: "Butterscotch Tea", price: 20 },
+      { name: "Cold Coffee", price: 60 },
+      { name: "Oreo Shake", price: 60 },
+      { name: "Plain Burger", price: 59 },
+    ];
+  }, []);
+
+  /* =======================================================
+     CATEGORY INFORMATION
+     ======================================================= */
+
+  const categoryInfo = {
+    all: {
+      title: "Our Menu",
+      subtitle: "Freshly prepared favourites for every mood.",
+      icon: <Sparkles size={22} />,
+    },
+
+    hotBeverages: {
+      title: "Hot Beverages",
+      subtitle: "Warm tea and coffee made fresh for you.",
+      icon: <Coffee size={22} />,
+    },
+
+    coldBeverages: {
+      title: "Cold Beverages",
+      subtitle: "Refreshing cold drinks, shakes, juices and lassi.",
+      icon: <IceCreamBowl size={22} />,
+    },
+
+    food: {
+      title: "Food",
+      subtitle: "Delicious burgers and grilled sandwiches.",
+      icon: <UtensilsCrossed size={22} />,
+    },
   };
 
-  const decreaseCart = (item) => {
-    setCart((prev) => {
-      const current = prev[item.name];
+  /* =======================================================
+     GET ITEM ICON
+     ======================================================= */
 
-      if (!current) return prev;
+  const getItemIcon = (itemName) => {
+    const name = itemName.toLowerCase();
 
-      if (current.quantity <= 1) {
-        const copy = { ...prev };
-        delete copy[item.name];
-        return copy;
+    if (
+      name.includes("tea") ||
+      name.includes("milk") ||
+      name.includes("tulsi")
+    ) {
+      return "🍵";
+    }
+
+    if (
+      name.includes("coffee") ||
+      name.includes("hazelnut") ||
+      name.includes("irish")
+    ) {
+      return "☕";
+    }
+
+    if (
+      name.includes("shake") ||
+      name.includes("lassi") ||
+      name.includes("mojito")
+    ) {
+      return "🥤";
+    }
+
+    if (
+      name.includes("burger") ||
+      name.includes("sandwich")
+    ) {
+      return "🍔";
+    }
+
+    if (name.includes("lemon")) {
+      return "🍋";
+    }
+
+    return "🍽️";
+  };
+
+  /* =======================================================
+     ADD TO CART
+     ======================================================= */
+
+  const addToCart = (item) => {
+    setCart((currentCart) => {
+      const existingItem = currentCart.find(
+        (cartItem) => cartItem.name === item.name
+      );
+
+      if (existingItem) {
+        return currentCart.map((cartItem) =>
+          cartItem.name === item.name
+            ? {
+                ...cartItem,
+                quantity: cartItem.quantity + 1,
+              }
+            : cartItem
+        );
       }
 
-      return {
-        ...prev,
-        [item.name]: {
-          ...current,
-          quantity: current.quantity - 1,
+      return [
+        ...currentCart,
+        {
+          ...item,
+          quantity: 1,
         },
-      };
+      ];
     });
   };
 
-  const cartItems = Object.values(cart);
+  /* =======================================================
+     DECREASE CART
+     ======================================================= */
 
-  const cartCount = cartItems.reduce(
+  const decreaseCart = (itemName) => {
+    setCart((currentCart) => {
+      const existingItem = currentCart.find(
+        (item) => item.name === itemName
+      );
+
+      if (!existingItem) {
+        return currentCart;
+      }
+
+      if (existingItem.quantity === 1) {
+        return currentCart.filter(
+          (item) => item.name !== itemName
+        );
+      }
+
+      return currentCart.map((item) =>
+        item.name === itemName
+          ? {
+              ...item,
+              quantity: item.quantity - 1,
+            }
+          : item
+      );
+    });
+  };
+
+  /* =======================================================
+     CART TOTAL
+     ======================================================= */
+
+  const cartCount = cart.reduce(
     (total, item) => total + item.quantity,
     0
   );
 
-  const cartTotal = cartItems.reduce(
+  const cartTotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
 
-  /* -----------------------------------------
-     Search
-  ----------------------------------------- */
+  /* =======================================================
+     SEARCH + CATEGORY FILTER
+     ======================================================= */
 
   const filteredSections = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = searchQuery.trim().toLowerCase();
 
     return allSections
+      .filter((section) => {
+        if (activeSection === "all") {
+          return true;
+        }
+
+        return section.section === activeSection;
+      })
       .map((section) => {
-        const categoryMatches =
-          activeTab === "all" || section.category === activeTab;
-
-        if (!categoryMatches) return null;
-
-        const items = section.items.filter((item) => {
-          if (!query) return true;
+        const filteredItems = section.items.filter((item) => {
+          if (!query) {
+            return true;
+          }
 
           return (
             item.name.toLowerCase().includes(query) ||
             section.category.toLowerCase().includes(query) ||
-            item.desc?.toLowerCase().includes(query)
+            (item.desc &&
+              item.desc.toLowerCase().includes(query))
           );
         });
 
-        if (!items.length) return null;
-
         return {
           ...section,
-          items,
+          items: filteredItems,
         };
       })
-      .filter(Boolean);
-  }, [activeTab, search]);
+      .filter((section) => section.items.length > 0);
+  }, [allSections, activeSection, searchQuery]);
 
-  const scrollToMenu = () => {
-    document
-      .getElementById("menu")
-      ?.scrollIntoView({ behavior: "smooth" });
+  /* =======================================================
+     WHATSAPP ORDER
+     ======================================================= */
+
+  const sendOrderToWhatsApp = () => {
+    if (cart.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+
+    if (
+      !WHATSAPP_NUMBER ||
+      WHATSAPP_NUMBER.includes("XXXXXXXX")
+    ) {
+      alert(
+        "Please add the Tea Garden WhatsApp number in App.jsx first."
+      );
+      return;
+    }
+
+    const orderItems = cart
+      .map(
+        (item, index) =>
+          `${index + 1}. ${item.name} × ${item.quantity} = ₹${
+            item.price * item.quantity
+          }`
+      )
+      .join("\n");
+
+    const message = `🍵 *TEA GARDEN - NEW ORDER*
+
+${orderItems}
+
+━━━━━━━━━━━━━━━━
+💰 *TOTAL: ₹${cartTotal}*
+━━━━━━━━━━━━━━━━
+
+Please prepare this order.`;
+
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+      message
+    )}`;
+
+    window.open(whatsappUrl, "_blank");
   };
 
-  const scrollTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+  /* =======================================================
+     QR CODE
+     ======================================================= */
+
+  const qrCodeImageUrl =
+    `https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=20&data=${encodeURIComponent(
+      websiteUrl
+    )}`;
+
+  /* =======================================================
+     DOWNLOAD QR
+     ======================================================= */
+
+  const downloadQRCode = async () => {
+    try {
+      const response = await fetch(qrCodeImageUrl);
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "tea-garden-menu-qr.png";
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert("Unable to download QR code.");
+    }
   };
 
-  const qrCodeImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=20&data=${encodeURIComponent(
-    websiteUrl
-  )}`;
+  /* =======================================================
+     SHARE QR
+     ======================================================= */
+
+  const shareQRCode = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Tea Garden Menu",
+          text: "Scan to view the Tea Garden menu.",
+          url: websiteUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(websiteUrl);
+        alert("Menu link copied.");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  /* =======================================================
+     RETURN UI
+     ======================================================= */
 
   return (
-    <div className="min-h-screen bg-[#100a07] text-[#fff5e9] font-sans overflow-x-hidden">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap');
+    <div className="min-h-screen bg-stone-50 text-stone-900">
 
-        * {
-          box-sizing: border-box;
-        }
-
-        html {
-          scroll-behavior: smooth;
-        }
-
-        body {
-          margin: 0;
-          background: #100a07;
-        }
-
-        .font-display {
-          font-family: 'Playfair Display', serif;
-        }
-
-        .font-body {
-          font-family: 'DM Sans', sans-serif;
-        }
-
-        @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-8px);
-          }
-        }
-
-        @keyframes steam {
-          0% {
-            opacity: 0;
-            transform: translateY(10px) scaleX(.8);
-          }
-          50% {
-            opacity: .5;
-          }
-          100% {
-            opacity: 0;
-            transform: translateY(-25px) scaleX(1.2);
-          }
-        }
-
-        @keyframes shimmer {
-          0% {
-            background-position: -500px 0;
-          }
-          100% {
-            background-position: 500px 0;
-          }
-        }
-
-        .fade-up {
-          animation: fadeUp .6s ease both;
-        }
-
-        .float {
-          animation: float 4s ease-in-out infinite;
-        }
-
-        .glass {
-          background: rgba(45, 27, 17, .72);
-          backdrop-filter: blur(18px);
-          -webkit-backdrop-filter: blur(18px);
-        }
-
-        .menu-card {
-          transition:
-            transform .25s ease,
-            border-color .25s ease,
-            background .25s ease,
-            box-shadow .25s ease;
-        }
-
-        .menu-card:hover {
-          transform: translateY(-5px);
-          border-color: rgba(245, 158, 11, .5);
-          background: rgba(65, 38, 22, .9);
-          box-shadow: 0 18px 45px rgba(0,0,0,.28);
-        }
-
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-
-      {/* =====================================================
-          DECORATIVE BACKGROUND
-      ===================================================== */}
-
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-orange-500/10 blur-[120px]" />
-        <div className="absolute top-[45%] -left-40 w-[450px] h-[450px] rounded-full bg-amber-700/10 blur-[120px]" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-yellow-500/5 blur-[100px]" />
-      </div>
-
-      {/* =====================================================
+      {/* ===================================================
           HEADER
-      ===================================================== */}
+          =================================================== */}
 
-      <header className="sticky top-0 z-40 glass border-b border-orange-900/30 shadow-2xl">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
-          <div className="flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+          <div className="flex h-16 items-center justify-between gap-4">
+
+            {/* Logo */}
             <button
-              onClick={scrollTop}
-              className="flex items-center gap-3 text-left"
+              onClick={() => {
+                setActiveSection("all");
+                setSearchQuery("");
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }}
+              className="flex items-center gap-3"
             >
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-400 to-amber-600 flex items-center justify-center shadow-lg shadow-orange-900/30">
-                <Coffee className="text-[#211008]" size={23} />
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-100 text-2xl">
+                🍵
               </div>
 
-              <div>
-                <div className="font-display text-xl font-bold text-orange-100">
+              <div className="text-left">
+                <h1 className="text-lg font-bold tracking-tight">
                   Tea Garden
-                </div>
-                <div className="text-[10px] uppercase tracking-[.25em] text-orange-300/50">
-                  Sip · Relax · Enjoy
-                </div>
+                </h1>
+
+                <p className="text-xs text-stone-500">
+                  Tea • Coffee • Food
+                </p>
               </div>
             </button>
 
-            <button
-              onClick={() => setShowCart(true)}
-              className="relative flex items-center justify-center w-11 h-11 rounded-full bg-orange-500 text-[#211008] hover:bg-orange-400 transition-all shadow-lg shadow-orange-900/30"
-            >
-              <ShoppingBag size={20} />
+            {/* Desktop actions */}
+            <div className="flex items-center gap-2">
 
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white text-orange-700 text-[10px] font-bold flex items-center justify-center">
-                  {cartCount}
+              <button
+                onClick={() => setOwnerOpen(true)}
+                className="hidden rounded-xl border border-stone-200 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100 sm:flex sm:items-center sm:gap-2"
+              >
+                <QrCode size={17} />
+                QR Generator
+              </button>
+
+              <button
+                onClick={() => setCartOpen(true)}
+                className="relative flex items-center gap-2 rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-800"
+              >
+                <ShoppingBag size={18} />
+                <span className="hidden sm:inline">
+                  Cart
                 </span>
-              )}
-            </button>
+
+                {cartCount > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-xs font-bold text-stone-900">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* =====================================================
+      {/* ===================================================
           HERO
-      ===================================================== */}
+          =================================================== */}
 
-      <section className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-10">
-        <div className="relative overflow-hidden rounded-[2rem] border border-orange-900/40 bg-gradient-to-br from-[#3c2517] via-[#24150d] to-[#160d09] p-7 sm:p-12 shadow-2xl">
-          {/* Decorative circles */}
-          <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full border border-orange-400/10" />
-          <div className="absolute -right-4 -top-4 w-40 h-40 rounded-full border border-orange-400/10" />
+      <section className="bg-gradient-to-br from-amber-50 via-white to-orange-50">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
 
-          <div className="absolute right-8 top-10 text-7xl opacity-10 float">
-            🍃
-          </div>
+          <div className="max-w-3xl">
 
-          <div className="relative max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-300 text-xs font-bold uppercase tracking-[.18em]">
-              <Sparkles size={13} />
-              Welcome to Tea Garden
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-900">
+              <Sparkles size={15} />
+              Freshly prepared
             </div>
 
-            <h1 className="font-display text-5xl sm:text-7xl font-bold leading-[.95] mt-6">
-              Your perfect
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-amber-400 to-yellow-200">
-                cup awaits.
+            <h2 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
+              Welcome to{" "}
+              <span className="text-amber-600">
+                Tea Garden
               </span>
-            </h1>
+            </h2>
 
-            <p className="mt-5 text-orange-100/60 text-base sm:text-lg max-w-xl leading-relaxed">
-              Fresh tea, aromatic coffee, chilled shakes and delicious bites —
-              made for your perfect break.
+            <p className="mt-5 max-w-2xl text-base leading-7 text-stone-600 sm:text-lg">
+              Discover delicious tea, coffee, refreshing beverages,
+              burgers and grilled sandwiches — all in one menu.
             </p>
 
-            <div className="flex flex-wrap gap-3 mt-7">
-              <button
-                onClick={scrollToMenu}
-                className="group px-6 py-3.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-[#211008] font-bold shadow-xl shadow-orange-950/30 hover:-translate-y-1 transition-all flex items-center gap-2"
-              >
-                Explore Menu
-                <ChevronRight
-                  size={18}
-                  className="group-hover:translate-x-1 transition-transform"
-                />
-              </button>
+            {/* Search */}
+            <div className="relative mt-7 max-w-xl">
+              <Search
+                size={20}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"
+              />
 
-              <button
-                onClick={() => setShowCart(true)}
-                className="px-6 py-3.5 rounded-full border border-orange-400/20 bg-white/5 text-orange-100 font-semibold hover:bg-orange-500/10 transition-all"
-              >
-                View Order
-              </button>
-            </div>
-          </div>
-
-          {/* Cup decoration */}
-          <div className="hidden sm:block absolute right-12 bottom-7">
-            <div className="relative">
-              <div className="text-8xl float">☕</div>
-
-              <div className="absolute -top-8 left-8 flex gap-2 opacity-50">
-                <span className="text-3xl">〰</span>
-                <span className="text-2xl">〰</span>
-              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(event) =>
+                  setSearchQuery(event.target.value)
+                }
+                placeholder="Search tea, coffee, burger..."
+                className="w-full rounded-2xl border border-stone-200 bg-white py-4 pl-12 pr-4 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* =====================================================
-          QUICK STATS
-      ===================================================== */}
+      {/* ===================================================
+          CATEGORY NAVIGATION
+          =================================================== */}
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
-        <div className="grid grid-cols-3 gap-3">
-          <StatCard value="50+" label="Choices" />
-          <StatCard value="₹10" label="Starting" />
-          <StatCard value="100%" label="Fresh" />
-        </div>
-      </section>
+      <section className="border-b border-stone-200 bg-white">
+        <div className="mx-auto max-w-7xl overflow-x-auto px-4 py-4 sm:px-6 lg:px-8">
 
-      {/* =====================================================
-          POPULAR PICKS
-      ===================================================== */}
+          <div className="flex min-w-max gap-2">
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <SectionHeading
-          eyebrow="Customer favourites"
-          title="Popular Picks"
-          icon={<Star size={18} />}
-        />
+            {Object.entries(categoryInfo).map(
+              ([key, info]) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveSection(key)}
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                    activeSection === key
+                      ? "bg-stone-900 text-white"
+                      : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                  }`}
+                >
+                  {info.icon}
 
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mt-6">
-          {popularItems.map((name) => {
-            const item = allSections
-              .flatMap((section) => section.items)
-              .find((x) => x.name === name);
-
-            if (!item) return null;
-
-            return (
-              <button
-                key={name}
-                onClick={() => addToCart(item)}
-                className="text-left group relative rounded-2xl p-4 bg-[#21140d] border border-orange-900/30 hover:border-orange-500/40 transition-all hover:-translate-y-1"
-              >
-                <div className="w-11 h-11 rounded-xl bg-orange-500/10 flex items-center justify-center text-2xl mb-4">
-                  {getItemIcon(item.name)}
-                </div>
-
-                <div className="text-sm font-bold text-orange-50 leading-tight min-h-[40px]">
-                  {item.name}
-                </div>
-
-                <div className="flex justify-between items-center mt-3">
-                  <span className="text-orange-400 font-bold">
-                    ₹{item.price}
-                  </span>
-
-                  <span className="w-7 h-7 rounded-full bg-orange-500 text-[#211008] flex items-center justify-center opacity-80 group-hover:opacity-100">
-                    <Plus size={15} />
-                  </span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* =====================================================
-          MENU
-      ===================================================== */}
-
-      <main id="menu" className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <SectionHeading
-          eyebrow="Something for every mood"
-          title="Explore Our Menu"
-          icon={<Leaf size={18} />}
-        />
-
-        {/* Search */}
-        <div className="relative mt-7">
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300/40"
-            size={20}
-          />
-
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search tea, coffee, burger, shake..."
-            className="w-full bg-[#21140d] border border-orange-900/40 rounded-2xl py-4 pl-12 pr-12 text-orange-50 placeholder:text-orange-200/30 outline-none focus:border-orange-500/60 focus:ring-4 focus:ring-orange-500/5 transition-all"
-          />
-
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-300/50 hover:text-orange-200"
-            >
-              <X size={19} />
-            </button>
-          )}
-        </div>
-
-        {/* Category Pills */}
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar py-5 -mx-1 px-1">
-          <CategoryPill
-            active={activeTab === "all"}
-            onClick={() => setActiveTab("all")}
-            icon="✨"
-            label="All"
-          />
-
-          {allSections.map((section) => (
-            <CategoryPill
-              key={section.category}
-              active={activeTab === section.category}
-              onClick={() => setActiveTab(section.category)}
-              icon={categoryInfo[section.category]?.icon || "🍴"}
-              label={section.category}
-            />
-          ))}
-        </div>
-
-        {/* Search result */}
-        {search && (
-          <div className="mb-6 text-sm text-orange-200/50">
-            Showing results for{" "}
-            <span className="text-orange-300 font-semibold">
-              "{search}"
-            </span>
+                  {info.title}
+                </button>
+              )
+            )}
           </div>
+        </div>
+      </section>
+
+      {/* ===================================================
+          POPULAR ITEMS
+          =================================================== */}
+
+      {activeSection === "all" &&
+        !searchQuery &&
+        popularItems.length > 0 && (
+          <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+
+            <div className="mb-5">
+              <h3 className="text-2xl font-bold">
+                Popular Favourites
+              </h3>
+
+              <p className="mt-1 text-sm text-stone-500">
+                Customer favourites at Tea Garden
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+              {popularItems.map((item) => (
+                <div
+                  key={item.name}
+                  className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-2xl">
+                      {getItemIcon(item.name)}
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold">
+                        {item.name}
+                      </h4>
+
+                      <p className="text-sm font-medium text-amber-600">
+                        ₹{item.price}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => addToCart(item)}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-900 text-white transition hover:bg-stone-700"
+                    aria-label={`Add ${item.name}`}
+                  >
+                    <Plus size={19} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
-        {/* Sections */}
-        <div className="space-y-12">
-          {filteredSections.map((section, index) => (
-            <MenuSection
-              key={section.category}
-              section={section}
-              index={index}
-              cart={cart}
-              addToCart={addToCart}
-              decreaseCart={decreaseCart}
-            />
-          ))}
-        </div>
+      {/* ===================================================
+          MENU
+          =================================================== */}
 
-        {filteredSections.length === 0 && (
-          <div className="py-20 text-center">
-            <div className="text-5xl mb-5">🔎</div>
-            <h3 className="font-display text-2xl font-bold">
-              Nothing found
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+
+        {filteredSections.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-stone-300 bg-white p-12 text-center">
+
+            <div className="text-5xl">
+              🔎
+            </div>
+
+            <h3 className="mt-4 text-xl font-bold">
+              No items found
             </h3>
-            <p className="text-orange-100/40 mt-2">
-              Try searching for another tea, coffee or food item.
-            </p>
 
-            <button
-              onClick={() => {
-                setSearch("");
-                setActiveTab("all");
-              }}
-              className="mt-5 px-5 py-2.5 rounded-full bg-orange-500 text-[#211008] font-bold"
-            >
-              Show Full Menu
-            </button>
+            <p className="mt-2 text-sm text-stone-500">
+              Try searching for something else.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-12">
+
+            {filteredSections.map((section) => (
+              <section key={`${section.section}-${section.category}`}>
+
+                <div className="mb-5 flex items-end justify-between gap-4">
+
+                  <div>
+                    <h3 className="text-2xl font-bold">
+                      {section.category}
+                    </h3>
+
+                    <p className="mt-1 text-sm text-stone-500">
+                      Choose your favourite
+                    </p>
+                  </div>
+
+                  <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-500">
+                    {section.items.length} items
+                  </span>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+
+                  {section.items.map((item) => {
+
+                    const cartItem = cart.find(
+                      (cartProduct) =>
+                        cartProduct.name === item.name
+                    );
+
+                    return (
+                      <article
+                        key={item.name}
+                        className="group rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                      >
+
+                        <div className="flex gap-4">
+
+                          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-2xl">
+                            {getItemIcon(item.name)}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+
+                            <div className="flex items-start justify-between gap-3">
+
+                              <div>
+                                <h4 className="font-bold text-stone-900">
+                                  {item.name}
+                                </h4>
+
+                                {item.desc && (
+                                  <p className="mt-1 text-sm leading-5 text-stone-500">
+                                    {item.desc}
+                                  </p>
+                                )}
+                              </div>
+
+                              <span className="shrink-0 font-bold text-amber-600">
+                                ₹{item.price}
+                              </span>
+                            </div>
+
+                            <div className="mt-4">
+
+                              {!cartItem ? (
+                                <button
+                                  onClick={() =>
+                                    addToCart(item)
+                                  }
+                                  className="flex items-center gap-2 rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
+                                >
+                                  <Plus size={16} />
+                                  Add
+                                </button>
+                              ) : (
+                                <div className="flex w-fit items-center gap-3 rounded-xl bg-stone-100 p-1">
+
+                                  <button
+                                    onClick={() =>
+                                      decreaseCart(item.name)
+                                    }
+                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-stone-700 shadow-sm"
+                                  >
+                                    <Minus size={15} />
+                                  </button>
+
+                                  <span className="min-w-5 text-center text-sm font-bold">
+                                    {cartItem.quantity}
+                                  </span>
+
+                                  <button
+                                    onClick={() =>
+                                      addToCart(item)
+                                    }
+                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-900 text-white"
+                                  >
+                                    <Plus size={15} />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
           </div>
         )}
       </main>
 
-      {/* =====================================================
-          ORDER CTA
-      ===================================================== */}
+      {/* ===================================================
+          FLOATING CART BUTTON
+          =================================================== */}
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-orange-600 to-amber-500 p-7 sm:p-10 text-[#211008]">
-          <div className="absolute -right-10 -bottom-20 text-[180px] opacity-10">
-            ☕
-          </div>
-
-          <div className="relative">
-            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[.15em] opacity-70">
-              <ShoppingBag size={16} />
-              Ready?
-            </div>
-
-            <h2 className="font-display text-3xl sm:text-4xl font-bold mt-2">
-              Your cravings are waiting.
-            </h2>
-
-            <p className="mt-2 max-w-xl opacity-70">
-              Add your favourites and send your order request to the shop.
-            </p>
-
-            <button
-              onClick={() => setShowCart(true)}
-              className="mt-6 px-6 py-3 rounded-full bg-[#211008] text-orange-100 font-bold flex items-center gap-2 hover:scale-[1.02] transition-transform"
-            >
-              <ShoppingBag size={18} />
-              {cartCount > 0
-                ? `View Order · ₹${cartTotal}`
-                : "Start Your Order"}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================
-          FOOTER
-      ===================================================== */}
-
-      <footer className="border-t border-orange-900/30 bg-[#0d0805] mt-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-          <div className="flex flex-col sm:flex-row justify-between gap-8">
-            <div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center">
-                  <Coffee size={20} className="text-[#211008]" />
-                </div>
-
-                <div>
-                  <div className="font-display text-xl font-bold">
-                    Tea Garden
-                  </div>
-
-                  <div className="text-[10px] uppercase tracking-[.2em] text-orange-300/40">
-                    Sip · Relax · Enjoy
-                  </div>
-                </div>
-              </div>
-
-              <p className="text-sm text-orange-100/35 mt-4 max-w-sm">
-                Good conversations begin with a good cup of tea.
-              </p>
-            </div>
-
-            <div className="sm:text-right">
-              <p className="text-xs uppercase tracking-[.2em] text-orange-300/30">
-                Owner
-              </p>
-
-              <button
-                onClick={() => setShowOwnerPanel(true)}
-                className="mt-2 text-sm text-orange-400 hover:text-orange-300 flex items-center gap-2 sm:ml-auto transition-colors"
-              >
-                <QrCode size={15} />
-                Generate Table QR
-              </button>
-            </div>
-          </div>
-
-          <div className="border-t border-orange-900/20 mt-8 pt-6 text-xs text-orange-100/25 flex flex-col sm:flex-row justify-between gap-2">
-            <span>© 2026 Tea Garden. All rights reserved.</span>
-            <span>Scan · Browse · Order</span>
-          </div>
-        </div>
-      </footer>
-
-      {/* =====================================================
-          FLOATING CART
-      ===================================================== */}
-
-      {cartCount > 0 && (
+      {cartCount > 0 && !cartOpen && (
         <button
-          onClick={() => setShowCart(true)}
-          className="fixed z-30 bottom-5 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] max-w-md bg-gradient-to-r from-orange-500 to-amber-500 text-[#211008] rounded-2xl p-3 shadow-[0_15px_50px_rgba(0,0,0,.5)] flex items-center justify-between hover:-translate-y-1 transition-transform"
+          onClick={() => setCartOpen(true)}
+          className="fixed bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-2xl bg-stone-900 px-5 py-3.5 text-white shadow-2xl transition hover:bg-stone-800"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#211008]/10 flex items-center justify-center">
-              <ShoppingBag size={19} />
-            </div>
+          <ShoppingBag size={20} />
 
-            <div className="text-left">
-              <div className="text-xs font-bold opacity-60">
-                YOUR ORDER
-              </div>
-              <div className="font-bold">
-                {cartCount} {cartCount === 1 ? "item" : "items"}
-              </div>
-            </div>
-          </div>
+          <span className="font-semibold">
+            View Cart
+          </span>
 
-          <div className="font-extrabold text-lg">
+          <span className="rounded-full bg-amber-400 px-2 py-0.5 text-sm font-bold text-stone-900">
             ₹{cartTotal}
-          </div>
+          </span>
         </button>
       )}
 
-      {/* =====================================================
-          BACK TO TOP
-      ===================================================== */}
+      {/* ===================================================
+          CART OVERLAY
+          =================================================== */}
 
-      {showTopButton && (
-        <button
-          onClick={scrollTop}
-          className="fixed right-4 bottom-5 z-20 w-11 h-11 rounded-full bg-[#2b1a10] border border-orange-500/20 text-orange-300 shadow-xl flex items-center justify-center hover:bg-orange-500 hover:text-[#211008] transition-all"
-        >
-          <ArrowUp size={18} />
-        </button>
-      )}
-
-      {/* =====================================================
-          CART DRAWER
-      ===================================================== */}
-
-      {showCart && (
+      {cartOpen && (
         <div className="fixed inset-0 z-50">
+
           <div
-            onClick={() => setShowCart(false)}
-            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setCartOpen(false)}
           />
 
-          <div className="absolute right-0 top-0 bottom-0 w-full sm:max-w-md bg-[#160d09] border-l border-orange-900/40 shadow-2xl flex flex-col">
-            <div className="px-5 py-5 border-b border-orange-900/30 flex justify-between items-center">
-              <div>
-                <div className="text-xs uppercase tracking-[.2em] text-orange-400/50">
-                  Tea Garden
-                </div>
+          <aside className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
 
-                <h2 className="font-display text-2xl font-bold mt-1">
-                  Your Order
+            {/* Cart Header */}
+            <div className="flex items-center justify-between border-b border-stone-200 px-5 py-4">
+
+              <div>
+                <h2 className="text-xl font-bold">
+                  Your Cart
                 </h2>
+
+                <p className="text-sm text-stone-500">
+                  {cartCount} item
+                  {cartCount !== 1 ? "s" : ""}
+                </p>
               </div>
 
               <button
-                onClick={() => setShowCart(false)}
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-orange-100/60 hover:text-white"
+                onClick={() => setCartOpen(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-600 hover:bg-stone-200"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5">
-              {cartItems.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center">
-                  <div className="text-6xl mb-5">🛍️</div>
+            {/* Cart Items */}
+            <div className="flex-1 overflow-y-auto px-5 py-5">
 
-                  <h3 className="font-display text-2xl font-bold">
-                    Your order is empty
+              {cart.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center text-center">
+
+                  <div className="text-6xl">
+                    🛒
+                  </div>
+
+                  <h3 className="mt-5 text-lg font-bold">
+                    Your cart is empty
                   </h3>
 
-                  <p className="text-orange-100/40 text-sm mt-2">
-                    Add something delicious from our menu.
+                  <p className="mt-2 text-sm text-stone-500">
+                    Add something delicious from the menu.
                   </p>
 
                   <button
-                    onClick={() => setShowCart(false)}
-                    className="mt-6 px-5 py-3 rounded-full bg-orange-500 text-[#211008] font-bold"
+                    onClick={() => setCartOpen(false)}
+                    className="mt-5 rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white"
                   >
                     Browse Menu
                   </button>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {cartItems.map((item) => (
+                <div className="space-y-4">
+
+                  {cart.map((item) => (
                     <div
                       key={item.name}
-                      className="bg-[#24150d] border border-orange-900/30 rounded-2xl p-4"
+                      className="rounded-2xl border border-stone-200 p-4"
                     >
-                      <div className="flex gap-3">
-                        <div className="w-12 h-12 shrink-0 rounded-xl bg-orange-500/10 flex items-center justify-center text-2xl">
-                          {getItemIcon(item.name)}
-                        </div>
 
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-orange-50">
-                            {item.name}
+                      <div className="flex items-start justify-between gap-3">
+
+                        <div className="flex gap-3">
+
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-xl">
+                            {getItemIcon(item.name)}
                           </div>
 
-                          <div className="text-sm text-orange-400 mt-1">
-                            ₹{item.price} each
-                          </div>
+                          <div>
+                            <h4 className="font-semibold">
+                              {item.name}
+                            </h4>
 
-                          <div className="flex items-center gap-2 mt-3">
-                            <button
-                              onClick={() => decreaseCart(item)}
-                              className="w-8 h-8 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center"
-                            >
-                              <Minus size={14} />
-                            </button>
-
-                            <span className="w-7 text-center font-bold">
-                              {item.quantity}
-                            </span>
-
-                            <button
-                              onClick={() => addToCart(item)}
-                              className="w-8 h-8 rounded-lg bg-orange-500 text-[#211008] flex items-center justify-center"
-                            >
-                              <Plus size={14} />
-                            </button>
+                            <p className="mt-1 text-sm text-stone-500">
+                              ₹{item.price} each
+                            </p>
                           </div>
                         </div>
 
-                        <div className="font-bold text-orange-300">
+                        <p className="font-bold text-amber-600">
                           ₹{item.price * item.quantity}
+                        </p>
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between">
+
+                        <div className="flex items-center gap-2 rounded-xl bg-stone-100 p-1">
+
+                          <button
+                            onClick={() =>
+                              decreaseCart(item.name)
+                            }
+                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-sm"
+                          >
+                            <Minus size={15} />
+                          </button>
+
+                          <span className="w-6 text-center text-sm font-bold">
+                            {item.quantity}
+                          </span>
+
+                          <button
+                            onClick={() =>
+                              addToCart(item)
+                            }
+                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-900 text-white"
+                          >
+                            <Plus size={15} />
+                          </button>
                         </div>
+
+                        <button
+                          onClick={() => {
+                            setCart((currentCart) =>
+                              currentCart.filter(
+                                (cartItem) =>
+                                  cartItem.name !== item.name
+                              )
+                            );
+                          }}
+                          className="text-xs font-medium text-red-500 hover:text-red-700"
+                        >
+                          Remove
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -995,323 +1032,167 @@ export default function App() {
               )}
             </div>
 
-            {cartItems.length > 0 && (
-              <div className="border-t border-orange-900/30 p-5 bg-[#120a07]">
-                <div className="flex justify-between text-orange-100/50 text-sm">
-                  <span>Subtotal</span>
-                  <span>₹{cartTotal}</span>
-                </div>
+            {/* Cart Footer */}
+            {cart.length > 0 && (
+              <div className="border-t border-stone-200 bg-white p-5">
 
-                <div className="flex justify-between mt-2">
-                  <span className="font-bold">Total</span>
-                  <span className="font-extrabold text-xl text-orange-400">
+                <div className="mb-4 flex items-center justify-between">
+
+                  <span className="text-base font-medium text-stone-600">
+                    Total
+                  </span>
+
+                  <span className="text-2xl font-black">
                     ₹{cartTotal}
                   </span>
                 </div>
 
+                {/* WHATSAPP ORDER BUTTON */}
                 <button
-                  onClick={() => {
-                    alert(
-                      "Order request ready! Connect this button to your preferred WhatsApp/Jotform ordering system."
-                    );
-                  }}
-                  className="w-full mt-5 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-[#211008] font-extrabold flex items-center justify-center gap-2"
+                  onClick={sendOrderToWhatsApp}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3.5 font-bold text-white shadow-sm transition hover:bg-green-700 active:scale-[0.99]"
                 >
-                  <ShoppingBag size={18} />
+                  <ShoppingBag size={19} />
                   Send Order Request
                 </button>
+
+                <p className="mt-3 text-center text-xs text-stone-400">
+                  Your order will open in WhatsApp.
+                </p>
               </div>
             )}
-          </div>
+          </aside>
         </div>
       )}
 
-      {/* =====================================================
-          OWNER QR PANEL
-      ===================================================== */}
+      {/* ===================================================
+          OWNER QR GENERATOR
+          =================================================== */}
 
-      {showOwnerPanel && (
-        <div className="fixed inset-0 bg-black/85 z-[60] flex items-center justify-center p-4 backdrop-blur-md">
-          <div className="bg-[#21140d] border border-orange-500/20 rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl">
-            <div className="p-5 border-b border-orange-900/30 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                  <QrCode className="text-orange-400" size={20} />
-                </div>
+      {ownerOpen && (
+        <div className="fixed inset-0 z-[60]">
 
-                <div>
-                  <h2 className="font-display text-xl font-bold">
-                    Table QR Generator
-                  </h2>
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setOwnerOpen(false)}
+          />
 
-                  <p className="text-xs text-orange-100/35">
-                    Generate a low-density menu QR
-                  </p>
-                </div>
+          <div className="absolute left-1/2 top-1/2 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-3xl bg-white shadow-2xl">
+
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-stone-200 px-5 py-4">
+
+              <div>
+                <h2 className="font-bold">
+                  Table QR Generator
+                </h2>
+
+                <p className="text-xs text-stone-500">
+                  Generate a low-density menu QR
+                </p>
               </div>
 
               <button
-                onClick={() => setShowOwnerPanel(false)}
-                className="text-orange-100/40 hover:text-white"
+                onClick={() => setOwnerOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100"
               >
-                <X size={22} />
+                <X size={18} />
               </button>
             </div>
 
-            <div className="p-5">
-              <div className="rounded-2xl bg-orange-500/5 border border-orange-900/30 p-4 mb-5">
-                <div className="flex gap-3">
-                  <Info className="text-orange-400 shrink-0" size={18} />
+            <div className="max-h-[80vh] overflow-y-auto p-5">
 
-                  <p className="text-xs text-orange-100/55 leading-relaxed">
-                    Use your deployed Tea Garden website URL here. The QR
-                    stores only the URL, keeping it low-density and much easier
-                    for customers to scan.
-                  </p>
-                </div>
-              </div>
-
-              <label className="block text-xs font-bold uppercase tracking-wider text-orange-300/60 mb-2">
-                Live Menu URL
+              {/* URL */}
+              <label className="text-sm font-semibold text-stone-700">
+                Menu Website URL
               </label>
 
               <input
                 type="url"
                 value={websiteUrl}
-                onChange={(e) => setWebsiteUrl(e.target.value)}
-                className="w-full bg-[#100a07] border border-orange-900/40 rounded-xl px-4 py-3 text-sm text-orange-50 outline-none focus:border-orange-500/60"
-                placeholder="https://your-menu.vercel.app"
+                onChange={(event) =>
+                  setWebsiteUrl(event.target.value)
+                }
+                className="mt-2 w-full rounded-xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
               />
 
-              <div className="mt-5 bg-white rounded-2xl p-5 flex justify-center">
-                {websiteUrl ? (
+              {/* QR */}
+              <div className="mt-5 flex justify-center">
+
+                <div className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm">
+
                   <img
                     src={qrCodeImageUrl}
-                    alt="Tea Garden QR Code"
-                    className="w-[230px] h-[230px]"
+                    alt="Tea Garden Menu QR Code"
+                    className="h-64 w-64"
                   />
-                ) : (
-                  <div className="w-[230px] h-[230px] flex items-center justify-center text-gray-400 text-sm">
-                    Enter your live URL
-                  </div>
-                )}
+
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mt-5">
+              <p className="mt-4 text-center text-xs leading-5 text-stone-500">
+                This QR contains only the menu website URL,
+                keeping the QR simple and easy to scan.
+              </p>
+
+              {/* Actions */}
+              <div className="mt-5 grid grid-cols-2 gap-3">
+
                 <button
-                  onClick={() => {
-                    const link = document.createElement("a");
-                    link.href = qrCodeImageUrl;
-                    link.download = "TeaGarden-Menu-QR.png";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }}
-                  className="py-3.5 rounded-xl bg-orange-500 text-[#211008] font-bold flex items-center justify-center gap-2 hover:bg-orange-400 transition-colors"
+                  onClick={downloadQRCode}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-stone-900 px-4 py-3 text-sm font-semibold text-white hover:bg-stone-800"
                 >
-                  <Printer size={17} />
+                  <Download size={17} />
                   Download
                 </button>
 
                 <button
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: "Tea Garden Menu",
-                        text: "View the Tea Garden menu",
-                        url: websiteUrl,
-                      });
-                    } else {
-                      navigator.clipboard?.writeText(websiteUrl);
-                      alert("Menu link copied!");
-                    }
-                  }}
-                  className="py-3.5 rounded-xl border border-orange-500/20 bg-white/5 text-orange-100 font-bold hover:bg-orange-500/10 transition-colors"
+                  onClick={shareQRCode}
+                  className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 py-3 text-sm font-semibold text-stone-700 hover:bg-stone-100"
                 >
-                  Share Menu
+                  <Share2 size={17} />
+                  Share
                 </button>
+              </div>
+
+              {/* QR URL */}
+              <div className="mt-4 rounded-xl bg-stone-50 p-3">
+
+                <p className="break-all text-xs text-stone-500">
+                  {websiteUrl}
+                </p>
+
               </div>
             </div>
           </div>
         </div>
       )}
-    </div>
-  );
-}
 
-/* =========================================================
-   COMPONENTS
-========================================================= */
+      {/* ===================================================
+          FOOTER
+          =================================================== */}
 
-function StatCard({ value, label }) {
-  return (
-    <div className="bg-[#1c110b] border border-orange-900/30 rounded-2xl p-4 text-center">
-      <div className="font-display text-xl sm:text-2xl font-bold text-orange-300">
-        {value}
-      </div>
+      <footer className="border-t border-stone-200 bg-white">
 
-      <div className="text-[10px] sm:text-xs uppercase tracking-[.15em] text-orange-100/30 mt-1">
-        {label}
-      </div>
-    </div>
-  );
-}
+        <div className="mx-auto max-w-7xl px-4 py-8 text-center sm:px-6 lg:px-8">
 
-function SectionHeading({ eyebrow, title, icon }) {
-  return (
-    <div className="flex items-end justify-between gap-4">
-      <div>
-        <div className="flex items-center gap-2 text-xs uppercase tracking-[.22em] text-orange-400/60 font-bold">
-          {icon}
-          {eyebrow}
-        </div>
-
-        <h2 className="font-display text-3xl sm:text-4xl font-bold text-orange-50 mt-2">
-          {title}
-        </h2>
-      </div>
-
-      <Heart
-        size={20}
-        className="text-orange-500/20 hidden sm:block mb-1"
-      />
-    </div>
-  );
-}
-
-function CategoryPill({ active, onClick, icon, label }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
-        active
-          ? "bg-orange-500 text-[#211008] shadow-lg shadow-orange-950/20"
-          : "bg-[#21140d] border border-orange-900/30 text-orange-100/60 hover:text-orange-100 hover:border-orange-500/30"
-      }`}
-    >
-      <span>{icon}</span>
-      {label}
-    </button>
-  );
-}
-
-function MenuSection({
-  section,
-  index,
-  cart,
-  addToCart,
-  decreaseCart,
-}) {
-  const info = categoryInfo[section.category] || {};
-
-  return (
-    <section
-      className="fade-up"
-      style={{
-        animationDelay: `${index * 80}ms`,
-      }}
-    >
-      {/* Section title */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-orange-500/20" />
-
-        <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-[#21140d] border border-orange-900/30">
-          <span className="text-xl">{info.icon}</span>
-
-          <div className="text-left">
-            <div className="font-display font-bold text-orange-100">
-              {section.category}
-            </div>
-
-            <div className="text-[9px] uppercase tracking-[.15em] text-orange-300/35">
-              {info.subtitle}
-            </div>
+          <div className="text-2xl">
+            🍵
           </div>
+
+          <h3 className="mt-2 font-bold">
+            Tea Garden
+          </h3>
+
+          <p className="mt-1 text-sm text-stone-500">
+            Fresh tea, coffee, beverages and food.
+          </p>
+
+          <p className="mt-4 text-xs text-stone-400">
+            © {new Date().getFullYear()} Tea Garden. All rights reserved.
+          </p>
         </div>
-
-        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-orange-500/20" />
-      </div>
-
-      {/* Items */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {section.items.map((item, itemIndex) => {
-          const quantity = cart[item.name]?.quantity || 0;
-
-          return (
-            <article
-              key={item.name}
-              className="menu-card group relative overflow-hidden bg-[#1d120c] border border-orange-900/30 rounded-2xl p-4 sm:p-5"
-            >
-              <div className="flex gap-4">
-                {/* Visual */}
-                <div className="shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500/15 to-amber-500/5 border border-orange-500/10 flex items-center justify-center text-3xl">
-                  {getItemIcon(item.name)}
-                </div>
-
-                {/* Main */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start gap-3">
-                    <div>
-                      <h3 className="font-bold text-[16px] sm:text-[17px] text-orange-50 leading-tight group-hover:text-orange-300 transition-colors">
-                        {item.name}
-                      </h3>
-
-                      {item.desc && (
-                        <p className="mt-2 text-xs sm:text-[13px] text-orange-100/40 leading-relaxed">
-                          {item.desc}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="shrink-0 px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-400 font-extrabold text-sm">
-                      ₹{item.price}
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[10px] uppercase tracking-[.16em] text-orange-100/25">
-                      Tea Garden
-                    </span>
-
-                    {quantity === 0 ? (
-                      <button
-                        onClick={() => addToCart(item)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500 text-[#211008] text-xs font-bold hover:bg-orange-400 transition-colors"
-                      >
-                        <Plus size={14} />
-                        Add
-                      </button>
-                    ) : (
-                      <div className="flex items-center gap-2 bg-orange-500/10 rounded-full p-1 border border-orange-500/10">
-                        <button
-                          onClick={() => decreaseCart(item)}
-                          className="w-7 h-7 rounded-full bg-[#21140d] text-orange-200 flex items-center justify-center"
-                        >
-                          <Minus size={13} />
-                        </button>
-
-                        <span className="text-xs font-bold min-w-[15px] text-center text-orange-300">
-                          {quantity}
-                        </span>
-
-                        <button
-                          onClick={() => addToCart(item)}
-                          className="w-7 h-7 rounded-full bg-orange-500 text-[#211008] flex items-center justify-center"
-                        >
-                          <Plus size={13} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Decorative corner */}
-              <div className="absolute -right-8 -bottom-8 w-20 h-20 rounded-full bg-orange-500/5 pointer-events-none" />
-            </article>
-          );
-        })}
-      </div>
-    </section>
+      </footer>
+    </div>
   );
 }
